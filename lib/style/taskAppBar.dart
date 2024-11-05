@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:task_manager_app/OnBoardingScreens/login.dart';
 import 'package:task_manager_app/TaskScreen/Profile_page.dart';
 
+import '../sharedPreference/auth_controller.dart';
+
 
 
 class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -54,7 +56,8 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
             IconButton(
-              onPressed: () {
+              onPressed: () async {
+                await AuthController.clearAccessToken();
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => LoginScreen()),

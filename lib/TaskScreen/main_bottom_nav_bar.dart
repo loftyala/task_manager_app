@@ -3,8 +3,8 @@ import 'package:task_manager_app/TaskScreen/cancelledTask.dart';
 import 'package:task_manager_app/TaskScreen/completedTask.dart';
 import 'package:task_manager_app/TaskScreen/newTask.dart';
 import 'package:task_manager_app/TaskScreen/progressTask.dart';
-import 'package:task_manager_app/style/background.dart';
 import 'package:task_manager_app/style/taskAppBar.dart';
+import 'package:task_manager_app/Data/Model/TaskModel.dart';
 
 class MainBottomNavBarScreen extends StatefulWidget {
   const MainBottomNavBarScreen({super.key});
@@ -14,36 +14,54 @@ class MainBottomNavBarScreen extends StatefulWidget {
 }
 
 class _MainBottomNavBarScreenState extends State<MainBottomNavBarScreen> {
-  int selectedIndex=0;
+  int selectedIndex = 0;
 
-  final List<Widget> taskScreen=[
-    NewTaskScreen(),
+  final List<Widget> taskScreens = [
+    NewTaskScreen(
+      key: UniqueKey(),
+      taskModel: TaskModel(
+        title: 'New Task',
+        description: 'Description of the new task',
+        createdDate: '2024-11-05',
+        status: 'New',
+      ),
+    ),
     CompletedTaskScreen(),
     CancelledTaskScreen(),
     ProgressTaskScreen(),
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: TMAppBar(),
-
-
-      body: taskScreen[selectedIndex],
+      appBar: TMAppBar(), // Ensure TMAppBar is a valid AppBar widget
+      body: taskScreens[selectedIndex],
       bottomNavigationBar: NavigationBar(
-          selectedIndex: selectedIndex,
-          onDestinationSelected: (int index){
-            setState(() {
-              selectedIndex=index;
-            });
-          },
-          destinations: [
-        NavigationDestination(
-
-            icon: Icon(Icons.new_label), label: 'New'),
-        NavigationDestination(icon: Icon(Icons.check_box), label: 'Completed'),
-        NavigationDestination(icon: Icon(Icons.close), label: 'Cancelled'),
-        NavigationDestination(icon: Icon(Icons.access_time_filled), label: 'Progress'),
-      ]),
+        selectedIndex: selectedIndex,
+        onDestinationSelected: (int index) {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
+        destinations: [
+          NavigationDestination(
+            icon: Icon(Icons.new_releases),
+            label: 'New',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.check_circle),
+            label: 'Completed',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.cancel),
+            label: 'Cancelled',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.hourglass_bottom),
+            label: 'Progress',
+          ),
+        ],
+      ),
     );
   }
 }

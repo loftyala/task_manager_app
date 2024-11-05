@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager_app/Data/Model/network_response.dart';
+import 'package:task_manager_app/Data/Service/networkCaller.dart';
 import 'package:task_manager_app/OnBoardingScreens/login.dart';
 import 'package:task_manager_app/style/background.dart';
 import 'package:task_manager_app/style/style.dart';
+import 'package:http/http.dart' as http;
+import '../Data/utils.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -13,16 +17,17 @@ class RegistrationScreen extends StatefulWidget {
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _FirstNameController = TextEditingController();
-  final TextEditingController _LastNameController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _inProgress = false;
 
   @override
   void dispose() {
     _emailController.dispose();
-    _FirstNameController.dispose();
-    _LastNameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -90,7 +95,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
-                controller: _FirstNameController,
+                controller: _firstNameController,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 keyboardType: TextInputType.text,
                 decoration: inputDecoration("Enter your First name", "Enter First Name", Icon(Icons.person_outlined)),
@@ -109,8 +114,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                controller: _LastNameController,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                controller: _lastNameController,
                 keyboardType: TextInputType.text,
                 decoration: inputDecoration("Enter your Last name", "Enter Last Name", Icon(Icons.person_outlined)),
                 validator: (value) {
@@ -166,13 +171,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             shadowColor: Colors.deepOrange,
             elevation: 10,
             color: Colors.deepOrange,
-            child: ElevatedButton(
-              onPressed: OntapRegisterButton,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepOrange,
-                minimumSize: Size(double.infinity, 50),
+            child: Visibility(
+              visible: _inProgress==false,
+              replacement: Center(child: CircularProgressIndicator()),
+              child: ElevatedButton(
+                onPressed: _onTapRegisterButton,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepOrange,
+                  minimumSize: Size(double.infinity, 50),
+                ),
+                child: Text("Register", style: TextStyle(color: Colors.white)),
               ),
-              child: Text("Register", style: TextStyle(color: Colors.white)),
             ),
           ),
           SizedBox(height: 20),
@@ -193,12 +202,51 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
-  void OntapRegisterButton() {
+  void _onTapRegisterButton() {
     if (_formKey.currentState!.validate()) {
-      // Proceed with registration logic
-      return;
-
+      _registration();
     }
   }
 
+  Future<void> _registration() async {
+    setState(() {
+      _inProgress = true;
+    });
+
+    NetworkResponse response = await NetworkCaller.postRequest(
+      Urls.registration,
+      body: {
+        'email': _emailController.text,
+        'firstName': _firstNameController.text,
+        'lastName': _lastNameController.text,
+        'phone': _phoneController.text,
+        'password': _passwordController.text,
+      },
+    );
+
+    if (!mounted) return; // Check if the widget is still in the tree
+
+    setState(() {
+      _inProgress = false;
+    });
+
+    if (response.isSuccess) {
+      _clearTextFields();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Registration successful")));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Registration failed: ${response.errorMessage}")));
+    }
+  }
+
+  void _clearTextFields() {
+    _firstNameController.clear();
+    _lastNameController.clear();
+    _phoneController.clear();
+    _passwordController.clear();
+    _emailController.clear();
+  }
+
 }
+
+
