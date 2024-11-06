@@ -214,7 +214,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     });
 
     NetworkResponse response = await NetworkCaller.postRequest(
-      Urls.registration,
+     url:  Urls.registration,
       body: {
         'email': _emailController.text,
         'firstName': _firstNameController.text,

@@ -1,28 +1,52 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
- const String _accessTokenKey = 'access_token';
- String? _accessToken;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:task_manager_app/Data/Model/userModel.dart';
 
 class AuthController {
- static Future<void> saveAccessToken(String token) async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    await pref.setString(_accessTokenKey, token);
-    _accessToken= token;
+  static const String _accessTokenKey = 'access-token';
+  static const String _userDataKey = 'user-data';
+  static String? accessToken;
+  static UserModel? userData;
+
+  static Future<void> saveAccessToken(String token) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.setString(_accessTokenKey, token);
+    accessToken = token;
   }
 
- static Future<String?> getAccessToken() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    String? token = await pref.getString(_accessTokenKey); // Retrieve the access token
-    _accessToken= token;
+  static Future<void> saveUserData(UserModel userModel) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.setString(
+        _userDataKey, jsonEncode(userModel.toJson()));
+    userData = userModel;
+  }
+
+  static Future<String?> getAccessToken() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? token = sharedPreferences.getString(_accessTokenKey);
+    accessToken = token;
     return token;
   }
- static bool isLoggedIn() {
-    return _accessToken != null;
+
+  static Future<UserModel?> getUserData() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? userEncodedData = sharedPreferences.getString(_userDataKey);
+    if (userEncodedData == null) {
+      return null;
+    }
+    UserModel userModel = UserModel.fromJson(jsonDecode(userEncodedData));
+    userData = userModel;
+    return userModel;
   }
 
-static  Future<void> clearAccessToken() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    await pref.clear();// Remove the specific key
-    _accessToken = null;
+  static bool isLoggedIn() {
+    return accessToken != null;
+  }
+
+  static Future<void> clearUserData() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.clear();
+    accessToken = null;
   }
 }

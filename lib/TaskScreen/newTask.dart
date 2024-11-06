@@ -96,7 +96,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
     _getNewTaskListInProgress = true;
     setState(() {});
 
-    final NetworkResponse response = await NetworkCaller.getRequest(Urls.newTaskList);
+    final NetworkResponse response = await NetworkCaller.getRequest(url:Urls.newTaskList);
     if (response.isSuccess) {
       final TaskListModel taskListModel = TaskListModel.fromJson(response.responseData);
       _newTaskList = taskListModel.taskList ?? [];
@@ -112,7 +112,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
     _getTaskStatusCountInProgress = true;
     setState(() {});
 
-    final NetworkResponse response = await NetworkCaller.getRequest(Urls.taskStatusCount); // Adjust URL if needed
+    final NetworkResponse response = await NetworkCaller.getRequest(url:Urls.taskStatusCount); // Adjust URL if needed
     if (response.isSuccess) {
       final TaskStatusCountModel taskStatusCountModel = TaskStatusCountModel.fromJson(response.responseData);
       _taskStatusCountList = taskStatusCountModel.taskStatusCountList ?? []; // Ensure this is a list

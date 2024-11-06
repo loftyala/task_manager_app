@@ -11,6 +11,7 @@ class Urls{
   static const String progressTaskList= "$baseUrl/listTaskByStatus/Progress";
   static const String cancelledTaskList= "$baseUrl/listTaskByStatus/Cancelled";
   static const String taskStatusCount = '$baseUrl/taskStatusCount';
+  static const String updateProfile = '$baseUrl/profileUpdate';
   static  String changeStatus(String taskId, String status) =>
       "$baseUrl/updateTaskStatus/$taskId/$status";
   static  String deleteTask(String taskId, String status) =>

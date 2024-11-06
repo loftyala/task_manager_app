@@ -152,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     final NetworkResponse response = await NetworkCaller.postRequest(
-      Urls.login,
+     url:  Urls.login,
       body: {
         'email': _emailController.text,
         'password': _passwordController.text,

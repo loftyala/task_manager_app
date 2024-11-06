@@ -50,7 +50,7 @@ class _CancelledTaskScreenState extends State<CancelledTaskScreen> {
     _getCancelledTaskListInProgress = true;
     setState(() {});
 
-    final NetworkResponse response = await NetworkCaller.getRequest(Urls.cancelledTaskList);
+    final NetworkResponse response = await NetworkCaller.getRequest(url:Urls.cancelledTaskList);
     if (response.isSuccess) {
       final TaskListModel taskListModel = TaskListModel.fromJson(response.responseData);
       _cancelledTaskList = taskListModel.taskList ?? [];

@@ -19,17 +19,17 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   final _timeController = TextEditingController();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool inProgress = false;
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop,result){
-        if(didPop){
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
           return;
         }
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false, // Correctly set here
         appBar: TMAppBar(),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -56,8 +56,8 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                       maxLines: 1,
                       decoration: inputDecoration("Enter the task name", "Title"),
                       style: TextStyle(
-                        fontSize: 20, // Set the desired font size
-                        fontWeight: FontWeight.bold, // Set the font weight to bold
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -87,14 +87,12 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                   elevation: 10,
                   color: Colors.deepOrange,
                   child: Visibility(
-                    visible:inProgress==false ,
+                    visible: inProgress == false,
                     replacement: Center(child: CircularProgressIndicator()),
                     child: ElevatedButton(
-
                       onPressed: () {
                         // Add your task submission logic here
                       },
-
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepOrange,
                         minimumSize: Size(double.infinity, 50),
@@ -128,7 +126,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
       inProgress=true;
       setState(() {});
       final NetworkResponse response = await NetworkCaller.postRequest(
-        Urls.addTask,
+       url:  Urls.addTask,
         body: {
           'title': _titleController.text,
           'description': _descriptionController.text,
