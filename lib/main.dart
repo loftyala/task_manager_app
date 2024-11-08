@@ -33,10 +33,10 @@ class MyApp extends StatelessWidget {
       ),
       home://PinVerificationPage()
       //SetPasswordScreen()
-      VerifyEmailScreen()
+      //VerifyEmailScreen()
       //RegistrationScreen()
       //LoginScreen()
-     //SplashScreen(),
+     SplashScreen(),
       //AddNewTaskScreen(),
       //MainBottomNavBarScreen(),
 

@@ -114,7 +114,7 @@ bool _deleteTaskInProgress = false;
     _deleteTaskInProgress = true;
     setState(() {});
     final NetworkResponse response = await NetworkCaller.getRequest(
-       url:  Urls.deleteTask(widget.taskModel.sId!, newStatus));
+       url:  Urls.deleteTask(widget.taskModel.sId!));
     if (response.isSuccess) {
       widget.onRefreshList();
     } else {

@@ -15,6 +15,7 @@ class AddNewTaskScreen extends StatefulWidget {
 class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final shouldRefresh = false;
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool inProgress = false;
@@ -26,6 +27,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
         if (didPop) {
           return;
         }
+
       },
       child: Scaffold(
         resizeToAvoidBottomInset: false, // Correctly set here
@@ -119,7 +121,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   void onTapAddTaskButton() {
     if (_formKey.currentState!.validate()) {
       addNewTask();
-      Navigator.pop(context);
+      Navigator.pop(context,  shouldRefresh);
     }
 
   }

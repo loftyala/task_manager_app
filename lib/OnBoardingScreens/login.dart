@@ -172,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (response.isSuccess) {
       LoginModel loginModel =LoginModel.fromJson(response.responseData);
       await AuthController.saveAccessToken(loginModel.token!);
-      AuthController.saveUserData(loginModel.data!.first);
+      AuthController.saveUserData(loginModel.data!);
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => MainBottomNavBarScreen()),
             (Route<dynamic> route) => false,
