@@ -15,8 +15,7 @@ class AddNewTaskScreen extends StatefulWidget {
 class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _dateController = TextEditingController();
-  final _timeController = TextEditingController();
+
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool inProgress = false;
   @override
@@ -91,7 +90,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                     replacement: Center(child: CircularProgressIndicator()),
                     child: ElevatedButton(
                       onPressed: () {
-                        // Add your task submission logic here
+                        onTapAddTaskButton();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepOrange,
@@ -120,7 +119,9 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   void onTapAddTaskButton() {
     if (_formKey.currentState!.validate()) {
       addNewTask();
+      Navigator.pop(context);
     }
+
   }
     Future<void> addNewTask() async {
       inProgress=true;

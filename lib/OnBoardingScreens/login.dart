@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager_app/Data/Model/loginModel.dart';
 import 'package:task_manager_app/Data/Model/network_response.dart';
 import 'package:task_manager_app/Data/Service/networkCaller.dart';
 import 'package:task_manager_app/Data/utils.dart';
 import 'package:task_manager_app/OnBoardingScreens/registration.dart';
+import 'package:task_manager_app/OnBoardingScreens/verifyEmail.dart';
 import 'package:task_manager_app/TaskScreen/main_bottom_nav_bar.dart';
 import 'package:task_manager_app/sharedPreference/auth_controller.dart';
 import 'package:task_manager_app/style/style.dart';
@@ -120,7 +122,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 )),
             SizedBox(height: 20),
-            Text("Forgot Password?", style: TextStyle(color: Colors.black54)),
+            TextButton(onPressed: (){
+              Navigator.of(context).push(MaterialPageRoute(builder: (context)=>VerifyEmailScreen()));
+            },
+                child: Text("Forgot Password?", style: TextStyle(color: Colors.black54)),
+            ),
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -164,7 +170,9 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     if (response.isSuccess) {
-      await AuthController.saveAccessToken(response.responseData["token"]);
+      LoginModel loginModel =LoginModel.fromJson(response.responseData);
+      await AuthController.saveAccessToken(loginModel.token!);
+      AuthController.saveUserData(loginModel.data!.first);
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => MainBottomNavBarScreen()),
             (Route<dynamic> route) => false,

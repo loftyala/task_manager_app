@@ -13,7 +13,6 @@ import '../widget/taskSummaryCard.dart';
 class NewTaskScreen extends StatefulWidget {
   const NewTaskScreen({super.key, required this.taskModel});
   final TaskModel taskModel;
-
   @override
   State<NewTaskScreen> createState() => _NewTaskScreenState();
 }
@@ -37,13 +36,14 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddNewTaskScreen()));
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => AddNewTaskScreen()));
         },
         backgroundColor: Colors.deepOrange,
         child: Icon(Icons.add, color: Colors.white70),
       ),
       body: RefreshIndicator(
-        onRefresh: () async{
+        onRefresh: () async {
           _getNewTaskList();
           _getTaskStatusCount();
         },
@@ -69,7 +69,6 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
       ),
     );
   }
-
   Visibility _buildSummarySection() {
     return Visibility(
       visible: !_getTaskStatusCountInProgress,

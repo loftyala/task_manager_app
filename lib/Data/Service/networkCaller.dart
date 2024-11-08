@@ -6,6 +6,8 @@ import 'package:task_manager_app/main.dart';
 import '../../OnBoardingScreens/login.dart';
 import '../../sharedPreference/auth_controller.dart';
 import '../Model/network_response.dart';
+import '../utils.dart';
+
 
 class NetworkCaller {
   static Future<NetworkResponse> getRequest({required String url}) async {
@@ -101,6 +103,25 @@ class NetworkCaller {
     }
   }
 
+  /// New method to initiate email verification
+  static Future<NetworkResponse> initiateEmailVerification(String email) async {
+    final url = '${Urls.recoverVerifyEmail}/$email';
+    return await getRequest(url: url);
+  }
+
+  /// New method to verify the email code (if required by your API)
+  static Future<NetworkResponse> verifyEmailCode({
+    required String email,
+    required String code,
+  }) async {
+    final url = '${Urls.baseUrl}/VerifyEmailCode'; // Adjust this URL as needed
+    final body = {
+      "email": email,
+      "code": code,
+    };
+    return await postRequest(url: url, body: body);
+  }
+
   static void printRequest(
       String url, Map<String, dynamic>? body, Map<String, String>? headers) {
     debugPrint(
@@ -115,7 +136,7 @@ class NetworkCaller {
   }
 
   static Future<void> _moveToLogIn() async { // Updated method name
-    await AuthController.accessToken; // Clear the access token
+    await AuthController.clearAccessToken(); // Clear the access token
     Navigator.pushAndRemoveUntil(
       MyApp.navigatorKey.currentContext!,
       MaterialPageRoute(builder: (context) => LoginScreen()), // Updated to LogInScreen

@@ -12,10 +12,22 @@ class Urls{
   static const String cancelledTaskList= "$baseUrl/listTaskByStatus/Cancelled";
   static const String taskStatusCount = '$baseUrl/taskStatusCount';
   static const String updateProfile = '$baseUrl/profileUpdate';
+  static const String recoverVerifyEmail = "$baseUrl/RecoverVerifyEmail";
   static  String changeStatus(String taskId, String status) =>
       "$baseUrl/updateTaskStatus/$taskId/$status";
   static  String deleteTask(String taskId, String status) =>
       "$baseUrl/deleteTask/$taskId/$status";
+
+  static String recoveryVarifiedEmail (String email) {
+    return '$baseUrl/RecoverVerifyEmail/$email';
+  }
+
+  static String recoverVerifyOtp (String email, String otp) {
+    return '$baseUrl/RecoverVerifyOtp/$email/$otp';
+  }
+
+  static const String recoverResetPassword = '$baseUrl/RecoverResetPassword';
+
 
 }
 
