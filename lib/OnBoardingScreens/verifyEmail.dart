@@ -8,6 +8,7 @@ import '../Data/Model/network_response.dart';
 import '../Data/Service/networkCaller.dart';
 import '../Data/utils.dart';
 
+
 class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});
 
@@ -16,11 +17,9 @@ class VerifyEmailScreen extends StatefulWidget {
 }
 
 class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
- // final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   bool _inProgress = false;
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +73,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
   Form buildAllTextFormField(BuildContext context) {
     return Form(
-     // key: _formKey,
+      key: _formKey,
       child: Column(
         children: [
           SizedBox(height: 20),
@@ -133,22 +132,20 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       ),
     );
   }
+
   void _onTapLoginButton() {
-
-      _signIn(); // Call signIn() only if the form is valid
+    if (_formKey.currentState?.validate() ?? false) {
+      _signIn();
     }
-
+  }
 
   Future<void> _signIn() async {
     setState(() {
       _inProgress = true;
     });
 
-    final NetworkResponse response = await NetworkCaller.postRequest(
-      url:  Urls.recoverVerifyEmail,
-      body: {
-        'email': _emailController.text,
-      },
+    final NetworkResponse response = await NetworkCaller.getRequest(
+      url: Urls.recoveryVarifiedEmail(_emailController.text), // Updated URL
     );
 
     setState(() {
@@ -158,10 +155,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     if (response.isSuccess) {
       _showSnackBar('A 6-digit verification pin has been sent to your email address');
 
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) =>PinVerificationPage(email: _emailController.text) ),
-            (Route<dynamic> route) => false,
-      );
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => PinVerificationPage(email: _emailController.text)));
     } else {
       _showSnackBar(response.errorMessage);
     }
@@ -170,6 +165,4 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
-
 }
-
