@@ -1,4 +1,3 @@
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -8,14 +7,12 @@ import 'package:task_manager_app/style/background.dart';
 import '../Data/utils.dart';
 import '../Data/Model/network_response.dart';
 import '../Data/Service/networkCaller.dart';
-
 class PinVerificationPage extends StatefulWidget {
   PinVerificationPage({super.key, required this.email});
   final String email;
 
   @override
-  State<PinVerificationPage> createState() =>
-      _PinVerificationPageState();
+  State<PinVerificationPage> createState() => _PinVerificationPageState();
 }
 
 class _PinVerificationPageState extends State<PinVerificationPage> {
@@ -32,37 +29,29 @@ class _PinVerificationPageState extends State<PinVerificationPage> {
       body: Stack(
         children: [
           ScreenBackground(),
-        SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  height: 80,
-                ),
-                Text(
-                  "Pin Varification",
-                  style: textTheme.displaySmall
-                      ?.copyWith(fontWeight: FontWeight.w500),
-                ),
-                Text(
-                  "A 6 digit varification otp has been send your email address",
-                  style: textTheme.titleMedium?.copyWith(color: Colors.grey),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                buildOTP_InputForm(),
-                const SizedBox(
-                  height: 30,
-                ),
-                buildHaveAnAccountSection()
-              ],
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 80),
+                  Text(
+                    "Pin Verification",
+                    style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    "A 6 digit verification OTP has been sent to your email address",
+                    style: textTheme.titleMedium?.copyWith(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 20),
+                  buildOTP_InputForm(),
+                  const SizedBox(height: 30),
+                  buildHaveAnAccountSection()
+                ],
+              ),
             ),
           ),
-        ),
-
         ],
       ),
     );
@@ -115,9 +104,7 @@ class _PinVerificationPageState extends State<PinVerificationPage> {
           enableActiveFill: true,
           appContext: context,
         ),
-        const SizedBox(
-          height: 20,
-        ),
+        const SizedBox(height: 20),
         ElevatedButton(
           onPressed: onTapNextButton,
           child: const Icon(Icons.arrow_circle_right_outlined),
@@ -127,17 +114,19 @@ class _PinVerificationPageState extends State<PinVerificationPage> {
   }
 
   Future<void> onTapNextButton() async {
-    otpInprogress = true;
-    setState(() {});
+    setState(() {
+      otpInprogress = true;
+    });
 
     final NetworkResponse response = await NetworkCaller.getRequest(
-      url:   Urls.recoverVerifyOtp(widget.email, otpCtrl.text), );
+      url: Urls.recoverVerifyOtp(widget.email, otpCtrl.text),
+    );
 
-    otpInprogress = false;
-    setState(() {});
+    setState(() {
+      otpInprogress = false;
+    });
 
     if (response.isSuccess) {
-
       Navigator.push(
           context,
           MaterialPageRoute(
