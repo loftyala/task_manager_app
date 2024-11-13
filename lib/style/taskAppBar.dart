@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:task_manager_app/OnBoardingScreens/login.dart';
 import 'package:task_manager_app/TaskScreen/Profile_page.dart';
 
-import '../sharedPreference/auth_controller.dart';
+import '../Controller/auth_controller.dart';
+
 
 
 

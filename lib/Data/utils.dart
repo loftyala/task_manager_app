@@ -28,12 +28,7 @@ class Urls{
 
   static const String recoverResetPassword = '$baseUrl/RecoverResetPassword';
 
-
 }
-
-
-
-
 void showSnackBarMessage(BuildContext context, String? message, bool isError) {
   if (message != null && context != null) {
     final snackBar = SnackBar(

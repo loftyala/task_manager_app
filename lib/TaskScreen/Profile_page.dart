@@ -5,11 +5,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:task_manager_app/style/style.dart';
 import 'package:task_manager_app/style/taskAppBar.dart';
 
+import '../Controller/auth_controller.dart';
 import '../Data/Model/network_response.dart';
 import '../Data/Model/userModel.dart';
 import '../Data/Service/networkCaller.dart';
 import '../Data/utils.dart';
-import '../sharedPreference/auth_controller.dart';
+
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});

@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:task_manager_app/main.dart';
 
+import '../../Controller/auth_controller.dart';
 import '../../OnBoardingScreens/login.dart';
-import '../../sharedPreference/auth_controller.dart';
+
 import '../Model/network_response.dart';
 import '../utils.dart';
 

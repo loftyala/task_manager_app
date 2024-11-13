@@ -6,8 +6,9 @@ import 'package:task_manager_app/Data/utils.dart';
 import 'package:task_manager_app/OnBoardingScreens/registration.dart';
 import 'package:task_manager_app/OnBoardingScreens/verifyEmail.dart';
 import 'package:task_manager_app/TaskScreen/main_bottom_nav_bar.dart';
-import 'package:task_manager_app/sharedPreference/auth_controller.dart';
+
 import 'package:task_manager_app/style/style.dart';
+import '../Controller/auth_controller.dart';
 import '../style/background.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -153,21 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _signIn() async {
-    setState(() {
-      _inProgress = true;
-    });
-
-    final NetworkResponse response = await NetworkCaller.postRequest(
-     url:  Urls.login,
-      body: {
-        'email': _emailController.text,
-        'password': _passwordController.text,
-      },
-    );
-
-    setState(() {
-      _inProgress = false;
-    });
+    
 
     if (response.isSuccess) {
       LoginModel loginModel =LoginModel.fromJson(response.responseData);

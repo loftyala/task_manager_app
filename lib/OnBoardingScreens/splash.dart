@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:task_manager_app/OnBoardingScreens/login.dart';
-import 'package:task_manager_app/sharedPreference/auth_controller.dart';
 import 'package:task_manager_app/style/background.dart';
+import '../Controller/auth_controller.dart';
 import '../TaskScreen/main_bottom_nav_bar.dart';
 
 class SplashScreen extends StatefulWidget {
