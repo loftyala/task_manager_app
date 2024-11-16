@@ -6,7 +6,6 @@ import 'package:task_manager_app/OnBoardingScreens/splash.dart';
 import 'package:task_manager_app/TaskScreen/main_bottom_nav_bar.dart';
 
 void main() {
-  // Initialize necessary dependencies
   runApp(const MyApp());
 }
 
@@ -16,7 +15,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Register controllers here
     Get.lazyPut(() => LoginController());
 
     return GetMaterialApp(
