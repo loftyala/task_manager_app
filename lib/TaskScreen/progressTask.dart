@@ -1,63 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:task_manager_app/Data/Model/TaskModel.dart';
+import 'package:task_manager_app/Data/Model/network_response.dart';
+import 'package:task_manager_app/Data/Model/taskLIstModel.dart';
+import 'package:task_manager_app/Data/Service/networkCaller.dart';
+import 'package:task_manager_app/Data/utils.dart';
 import 'package:task_manager_app/widget/taskCard.dart';
 
-import '../Data/Model/network_response.dart';
-import '../Data/Model/taskLIstModel.dart';
-import '../Data/Service/networkCaller.dart';
-import '../Data/utils.dart';
+class ProgressTaskController extends GetxController {
+  final isLoading = false.obs;
+  final progressTaskList = <TaskModel>[].obs;
 
-class ProgressTaskScreen extends StatefulWidget {
+  Future<void> fetchProgressTaskList() async {
+    isLoading.value = true;
+
+    final NetworkResponse response =
+    await NetworkCaller.getRequest(url: Urls.progressTaskList);
+
+    if (response.isSuccess) {
+      final TaskListModel taskListModel =
+      TaskListModel.fromJson(response.responseData);
+      progressTaskList.value = taskListModel.taskList ?? [];
+    } else {
+      Get.snackbar("Error", response.errorMessage, snackPosition: SnackPosition.BOTTOM);
+    }
+
+    isLoading.value = false;
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchProgressTaskList();
+  }
+}
+
+class ProgressTaskScreen extends StatelessWidget {
   const ProgressTaskScreen({super.key});
 
   @override
-  State<ProgressTaskScreen> createState() => _ProgressTaskScreenState();
-}
-
-class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
-  bool _getProgressTaskListInProgress = false;
-  List<TaskModel> _progressTaskList = [];
-
-  @override
-  void initState() {
-    _getProgressTaskList();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: !_getProgressTaskListInProgress,
-      replacement: Center(child: CircularProgressIndicator()),
-      child: RefreshIndicator(
-        onRefresh: _getProgressTaskList,
+    final ProgressTaskController controller = Get.put(ProgressTaskController());
+
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      return RefreshIndicator(
+        onRefresh: controller.fetchProgressTaskList,
         child: ListView.builder(
-          itemCount: _progressTaskList.length,
+          itemCount: controller.progressTaskList.length,
           itemBuilder: (context, index) {
             return taskCard(
-              onRefreshList: _getProgressTaskList,
+              onRefreshList: controller.fetchProgressTaskList,
               key: UniqueKey(),
-              taskModel: _progressTaskList[index], // Passing a TaskModel instance
+              taskModel: controller.progressTaskList[index],
             );
           },
         ),
-      ),
-    );
-  }
-
-  Future<void> _getProgressTaskList() async {
-    _progressTaskList.clear();
-    _getProgressTaskListInProgress = true;
-    setState(() {});
-
-    final NetworkResponse response = await NetworkCaller.getRequest(url:Urls.progressTaskList);
-    if (response.isSuccess) {
-      final TaskListModel taskListModel = TaskListModel.fromJson(response.responseData);
-      _progressTaskList = taskListModel.taskList ?? [];
-    } else {
-      showSnackBarMessage(context, response.errorMessage, true);
-    }
-    _getProgressTaskListInProgress = false;
-    setState(() {});
+      );
+    });
   }
 }

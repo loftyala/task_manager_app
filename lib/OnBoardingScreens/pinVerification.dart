@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:task_manager_app/OnBoardingScreens/login.dart';
 import 'package:task_manager_app/OnBoardingScreens/setPassword.dart';
@@ -7,6 +8,7 @@ import 'package:task_manager_app/style/background.dart';
 import '../Data/utils.dart';
 import '../Data/Model/network_response.dart';
 import '../Data/Service/networkCaller.dart';
+
 class PinVerificationPage extends StatefulWidget {
   PinVerificationPage({super.key, required this.email});
   final String email;
@@ -19,7 +21,8 @@ class _PinVerificationPageState extends State<PinVerificationPage> {
   final TextEditingController otpCtrl = TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
 
-  bool otpInprogress = false;
+  // GetX observable variable for loading state
+  final RxBool otpInprogress = false.obs;
 
   @override
   Widget build(BuildContext context) {
@@ -105,44 +108,39 @@ class _PinVerificationPageState extends State<PinVerificationPage> {
           appContext: context,
         ),
         const SizedBox(height: 20),
+
+        Obx(() => // GetX reactive widget for loading state
         ElevatedButton(
-          onPressed: onTapNextButton,
-          child: const Icon(Icons.arrow_circle_right_outlined),
+          onPressed: otpInprogress.value ? null : onTapNextButton,
+          child: otpInprogress.value
+              ? CircularProgressIndicator(color: Colors.white)
+              : const Icon(Icons.arrow_circle_right_outlined),
+        ),
         ),
       ],
     );
   }
 
   Future<void> onTapNextButton() async {
-    setState(() {
-      otpInprogress = true;
-    });
+    otpInprogress.value = true;
 
     final NetworkResponse response = await NetworkCaller.getRequest(
       url: Urls.recoverVerifyOtp(widget.email, otpCtrl.text),
     );
 
-    setState(() {
-      otpInprogress = false;
-    });
+    otpInprogress.value = false;
 
     if (response.isSuccess) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => SetPasswordScreen(
-                email: widget.email,
-                otp: otpCtrl.text,
-              )));
+      Get.to(() => SetPasswordScreen(
+        email: widget.email,
+        otp: otpCtrl.text,
+      ));
     } else {
-      showSnackBarMessage(context, 'Invalid code', true);
+      Get.snackbar('Error', 'Invalid code', snackPosition: SnackPosition.BOTTOM);
     }
   }
 
   void onTapSignIn() {
-    Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-            (_) => false);
+    Get.offAll(() =>  LoginScreen());
   }
 }

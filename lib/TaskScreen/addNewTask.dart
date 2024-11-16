@@ -1,112 +1,96 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:task_manager_app/style/taskAppBar.dart';
 
 import '../Data/Model/network_response.dart';
 import '../Data/Service/networkCaller.dart';
 import '../Data/utils.dart';
 
-class AddNewTaskScreen extends StatefulWidget {
+class AddNewTaskScreen extends StatelessWidget {
   const AddNewTaskScreen({super.key});
 
   @override
-  State<AddNewTaskScreen> createState() => _AddNewTaskScreenState();
-}
-
-class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
-  final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final shouldRefresh = false;
-
-  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  bool inProgress = false;
-  @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) {
-          return;
-        }
-
-      },
-      child: Scaffold(
-        resizeToAvoidBottomInset: false, // Correctly set here
-        appBar: TMAppBar(),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 42),
-                Text('Add New Task', style: Theme.of(context).textTheme.titleLarge),
-                SizedBox(height: 25),
-                Card(
-                  elevation: 10,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      controller: _titleController,
-                      validator: (String? value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Title is required';
-                        }
-                        return null;
-                      },
-                      maxLines: 1,
-                      decoration: inputDecoration("Enter the task name", "Title"),
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+    return GetBuilder<AddTaskController>(
+      init: AddTaskController(),
+      builder: (controller) {
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: TMAppBar(),
+          body: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Form(
+              key: controller.formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 42),
+                  Text('Add New Task', style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 25),
+                  Card(
+                    elevation: 10,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(
+                        controller: controller.titleController,
+                        validator: (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Title is required';
+                          }
+                          return null;
+                        },
+                        maxLines: 1,
+                        decoration: inputDecoration("Enter the task name", "Title"),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(height: 10),
-                Card(
-                  elevation: 10,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      controller: _descriptionController,
-                      validator: (String? value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Description is required';
-                        }
-                        return null;
-                      },
-                      maxLines: 5,
-                      keyboardType: TextInputType.multiline,
-                      decoration: inputDecoration("Enter task description", "Description"),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 10),
-                Card(
-                  shadowColor: Colors.deepOrange,
-                  elevation: 10,
-                  color: Colors.deepOrange,
-                  child: Visibility(
-                    visible: inProgress == false,
-                    replacement: Center(child: CircularProgressIndicator()),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        onTapAddTaskButton();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepOrange,
-                        minimumSize: Size(double.infinity, 50),
+                  const SizedBox(height: 10),
+                  Card(
+                    elevation: 10,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(
+                        controller: controller.descriptionController,
+                        validator: (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Description is required';
+                          }
+                          return null;
+                        },
+                        maxLines: 5,
+                        keyboardType: TextInputType.multiline,
+                        decoration: inputDecoration("Enter task description", "Description"),
                       ),
-                      child: Text("Add Task", style: TextStyle(color: Colors.white)),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 10),
+                  Card(
+                    shadowColor: Colors.deepOrange,
+                    elevation: 10,
+                    color: Colors.deepOrange,
+                    child: Obx(() => Visibility(
+                      visible: !controller.inProgress.value,
+                      replacement: const Center(child: CircularProgressIndicator()),
+                      child: ElevatedButton(
+                        onPressed: controller.onTapAddTaskButton,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepOrange,
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
+                        child: const Text("Add Task", style: TextStyle(color: Colors.white)),
+                      ),
+                    )),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -114,39 +98,50 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
     return InputDecoration(
       hintText: hintText,
       labelText: labelText,
-      labelStyle: TextStyle(color: Colors.deepOrange),
+      labelStyle: const TextStyle(color: Colors.deepOrange),
       border: InputBorder.none,
     );
   }
-  void onTapAddTaskButton() {
-    if (_formKey.currentState!.validate()) {
-      addNewTask();
-      Navigator.pop(context,  shouldRefresh);
-    }
+}
 
+class AddTaskController extends GetxController {
+  final titleController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  final inProgress = false.obs;
+
+  void onTapAddTaskButton() {
+    if (formKey.currentState!.validate()) {
+      addNewTask();
+    }
   }
-    Future<void> addNewTask() async {
-      inProgress=true;
-      setState(() {});
-      final NetworkResponse response = await NetworkCaller.postRequest(
-       url:  Urls.addTask,
-        body: {
-          'title': _titleController.text,
-          'description': _descriptionController.text,
-          "status":"New"
-        },
+
+  Future<void> addNewTask() async {
+    inProgress.value = true;
+    final NetworkResponse response = await NetworkCaller.postRequest(
+      url: Urls.addTask,
+      body: {
+        'title': titleController.text,
+        'description': descriptionController.text,
+        "status": "New"
+      },
+    );
+    inProgress.value = false;
+    if (response.isSuccess) {
+      _clearTextFields();
+      ScaffoldMessenger.of(Get.context!).showSnackBar(
+        const SnackBar(content: Text("Task added successfully")),
       );
-      inProgress=false;
-      setState(() {});
-      if (response.isSuccess) {
-        _clearTextFields();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Task added successfully")));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response.errorMessage)));
-      }
+      Get.back(result: true);
+    } else {
+      ScaffoldMessenger.of(Get.context!).showSnackBar(
+        SnackBar(content: Text(response.errorMessage)),
+      );
     }
-    void _clearTextFields() {
-      _titleController.clear();
-      _descriptionController.clear();
-    }
+  }
+
+  void _clearTextFields() {
+    titleController.clear();
+    descriptionController.clear();
+  }
 }

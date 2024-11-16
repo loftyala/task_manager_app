@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:task_manager_app/OnBoardingScreens/login.dart';
 import 'package:task_manager_app/style/background.dart';
 import 'package:task_manager_app/style/style.dart';
@@ -21,32 +22,31 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
   final TextEditingController confirmPasswordCtrl = TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
 
-  bool recoveryPassInprogress = false;
+  final RxBool recoveryPassInProgress = false.obs; // Use RxBool for reactive state
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack( // Correctly instantiate Stack as a child of Scaffold
+      body: Stack(
         children: [
           ScreenBackground(),
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children:  [
-              SizedBox(height: 40), // Correctly wrap SizedBox
+            children: [
+              SizedBox(height: 40),
               Padding(
                 padding: const EdgeInsets.only(left: 14.0),
                 child: Text(
                   "Set Password",
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,color: Colors.white),
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 14.0),
                 child: Text(
-                  "Minimun length of password is 8 characters with letters and numbers combination",
-                  style: TextStyle(fontSize: 15,
-                      fontWeight: FontWeight.bold,color: Colors.white70),
+                  "Minimum length of password is 8 characters with letters and numbers combination",
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white70),
                 ),
               ),
               SizedBox(height: 40),
@@ -57,8 +57,6 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                     padding: const EdgeInsets.all(20.0),
                     child: buildTextField(context),
                   ),
-
-
                 ),
               ),
             ],
@@ -72,86 +70,87 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
     return Form(
       key: _globalKey,
       child: Column(
-                      children: [
-                        SizedBox(height: 20),
-                        Card(
-                          elevation: 10,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFormField(
-                              controller: passwordCtrl,
-                              validator: (value){
-                                if(value!.isEmpty){
-                                  return "Enter a valid email";
-                                }
-                                return null;
-                              },
-                              keyboardType: TextInputType.text,
-                              decoration: inputDecoration("jsk@34#2", "Enter Password",Icon(Icons.password_outlined)),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        Card(
-                          elevation: 10,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFormField(
-                              controller: confirmPasswordCtrl,
-                              validator: (value){
-                                if(value!.isEmpty){
-                                  return "Enter a valid email";
-                                }
-                                return null;
-                              },
-
-                              keyboardType: TextInputType.text,
-                              decoration: inputDecoration("jsk@34#2", "Confirm Password",Icon(Icons.password_outlined)),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        Card(
-
-                            shadowColor: Colors.deepOrange,
-                            elevation: 10,
-                            color: Colors.deepOrange,
-                            child: ElevatedButton(
-                                onPressed: (){
-                                  OntapConfirmButton();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.deepOrange,minimumSize: Size(double.infinity, 50)),
-                                child: Text("Confirm",style: TextStyle(color: Colors.white,fontSize: 20,fontWeight: FontWeight.bold),)
-                            )
-                        ),
-                        SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(" Have  account?",style: TextStyle(color: Colors.black54),),
-                            TextButton(onPressed: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
-                            }, child: Text("Sign In",style: TextStyle(color: Colors.deepOrange),))
-                          ],
-                        ),
-
-
-                      ],
-                    ),
+        children: [
+          SizedBox(height: 20),
+          Card(
+            elevation: 10,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: passwordCtrl,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "Enter a valid password";
+                  }
+                  return null;
+                },
+                keyboardType: TextInputType.text,
+                decoration: inputDecoration("jsk@34#2", "Enter Password", Icon(Icons.password_outlined)),
+              ),
+            ),
+          ),
+          SizedBox(height: 20),
+          Card(
+            elevation: 10,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: confirmPasswordCtrl,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "Confirm your password";
+                  }
+                  return null;
+                },
+                keyboardType: TextInputType.text,
+                decoration: inputDecoration("jsk@34#2", "Confirm Password", Icon(Icons.password_outlined)),
+              ),
+            ),
+          ),
+          SizedBox(height: 20),
+          Obx(() => Card(
+            shadowColor: Colors.deepOrange,
+            elevation: 10,
+            color: Colors.deepOrange,
+            child: ElevatedButton(
+              onPressed: recoveryPassInProgress.value ? null : () => OntapConfirmButton(),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepOrange, minimumSize: Size(double.infinity, 50)),
+              child: recoveryPassInProgress.value
+                  ? CircularProgressIndicator(color: Colors.white)
+                  : Text(
+                "Confirm",
+                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+          )),
+          SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(" Have an account?", style: TextStyle(color: Colors.black54)),
+              TextButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+                  },
+                  child: Text("Sign In", style: TextStyle(color: Colors.deepOrange)))
+            ],
+          ),
+        ],
+      ),
     );
   }
 
-void OntapConfirmButton(){
-  if (_globalKey.currentState!.validate()) {
-    changePassword();
-  } else {
-    print('Wrong');
+  void OntapConfirmButton() {
+    if (_globalKey.currentState!.validate()) {
+      changePassword();
+    } else {
+      print('Validation failed');
+    }
   }
-}
+
   Future<void> changePassword() async {
-    recoveryPassInprogress = true;
-    setState(() {});
+    recoveryPassInProgress.value = true;
 
     Map<String, dynamic> requestBody = {
       "email": widget.email,
@@ -159,22 +158,22 @@ void OntapConfirmButton(){
       "password": passwordCtrl.text
     };
 
-    final NetworkResponse response =
-    await NetworkCaller.postRequest(
-     url: Urls.recoverResetPassword,body: requestBody);
+    final NetworkResponse response = await NetworkCaller.postRequest(
+      url: Urls.recoverResetPassword,
+      body: requestBody,
+    );
 
     if (response.isSuccess) {
-      showSnackBarMessage(context, 'Successfully password changed', true);
+      showSnackBarMessage(context, 'Password changed successfully', true);
       Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-              (_) => false);
+        context,
+        MaterialPageRoute(builder: (context) =>  LoginScreen()),
+            (_) => false,
+      );
     } else {
       showSnackBarMessage(context, response.errorMessage, true);
     }
 
-    recoveryPassInprogress = false;
-    setState(() {});
+    recoveryPassInProgress.value = false;
   }
-
 }

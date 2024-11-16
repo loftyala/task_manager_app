@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // Import GetX
 import 'package:task_manager_app/Data/Model/TaskModel.dart';
 import 'package:task_manager_app/widget/taskCard.dart';
 
@@ -15,9 +16,8 @@ class CompletedTaskScreen extends StatefulWidget {
 }
 
 class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
-
-  bool _getCompletedTaskListInProgress = false;
-  List<TaskModel> _CompletedTaskList = [];
+  var _getCompletedTaskListInProgress = false.obs; // Observable for loading state
+  var _completedTaskList = <TaskModel>[].obs; // Observable list for tasks
 
   @override
   void initState() {
@@ -27,37 +27,36 @@ class _CompletedTaskScreenState extends State<CompletedTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: !_getCompletedTaskListInProgress,
+    return Obx(() => Visibility(
+      visible: !_getCompletedTaskListInProgress.value,
       replacement: Center(child: CircularProgressIndicator()),
       child: RefreshIndicator(
         onRefresh: _getCompletedTaskList,
         child: ListView.builder(
-          itemCount: _CompletedTaskList.length,
+          itemCount: _completedTaskList.length,
           itemBuilder: (context, index) {
             return taskCard(
-              onRefreshList:_getCompletedTaskList ,
+              onRefreshList: _getCompletedTaskList,
               key: UniqueKey(),
-              taskModel: _CompletedTaskList[index], // Passing a TaskModel instance
+              taskModel: _completedTaskList[index], // Passing a TaskModel instance
             );
           },
         ),
       ),
-    );
+    ));
   }
-  Future<void> _getCompletedTaskList() async {
-    _CompletedTaskList.clear();
-    _getCompletedTaskListInProgress = true;
-    setState(() {});
 
-    final NetworkResponse response = await NetworkCaller.getRequest(url:Urls.completedTaskList);
+  Future<void> _getCompletedTaskList() async {
+    _completedTaskList.clear();
+    _getCompletedTaskListInProgress.value = true;
+
+    final NetworkResponse response = await NetworkCaller.getRequest(url: Urls.completedTaskList);
     if (response.isSuccess) {
       final TaskListModel taskListModel = TaskListModel.fromJson(response.responseData);
-      _CompletedTaskList = taskListModel.taskList ?? [];
+      _completedTaskList.assignAll(taskListModel.taskList ?? []);
     } else {
-      showSnackBarMessage(context, response.errorMessage, true);
+      Get.snackbar('Error', response.errorMessage, snackPosition: SnackPosition.BOTTOM, colorText: Colors.white, backgroundColor: Colors.red);
     }
-    _getCompletedTaskListInProgress = false;
-    setState(() {});
+    _getCompletedTaskListInProgress.value = false;
   }
 }

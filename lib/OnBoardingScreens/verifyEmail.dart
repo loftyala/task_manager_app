@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // Import GetX for navigation and snackbar
 import 'package:task_manager_app/OnBoardingScreens/login.dart';
 import 'package:task_manager_app/OnBoardingScreens/pinVerification.dart';
 import 'package:task_manager_app/style/background.dart';
@@ -7,7 +8,6 @@ import 'package:task_manager_app/style/style.dart';
 import '../Data/Model/network_response.dart';
 import '../Data/Service/networkCaller.dart';
 import '../Data/utils.dart';
-
 
 class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});
@@ -119,10 +119,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
               Text("Have an account?", style: TextStyle(color: Colors.black54)),
               TextButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()),
-                  );
+                  Get.to(() => LoginScreen()); // Replaced with Get.to
                 },
                 child: Text("Sign In", style: TextStyle(color: Colors.deepOrange)),
               )
@@ -154,15 +151,13 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
     if (response.isSuccess) {
       _showSnackBar('A 6-digit verification pin has been sent to your email address');
-
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => PinVerificationPage(email: _emailController.text)));
+      Get.to(() => PinVerificationPage(email: _emailController.text)); // Replaced with Get.to
     } else {
       _showSnackBar(response.errorMessage);
     }
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    Get.snackbar('Notification', message, snackPosition: SnackPosition.BOTTOM); // Used GetX snackbar
   }
 }

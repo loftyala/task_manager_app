@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:task_manager_app/Data/Model/network_response.dart';
 import 'package:task_manager_app/Data/Service/networkCaller.dart';
 import 'package:task_manager_app/OnBoardingScreens/login.dart';
 import 'package:task_manager_app/style/background.dart';
 import 'package:task_manager_app/style/style.dart';
-import 'package:http/http.dart' as http;
 import '../Data/utils.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -21,7 +21,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _inProgress = false;
+
+  // GetX observable variable for progress indicator
+  final RxBool _inProgress = false.obs;
 
   @override
   void dispose() {
@@ -171,18 +173,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             shadowColor: Colors.deepOrange,
             elevation: 10,
             color: Colors.deepOrange,
-            child: Visibility(
-              visible: _inProgress==false,
-              replacement: Center(child: CircularProgressIndicator()),
-              child: ElevatedButton(
-                onPressed: _onTapRegisterButton,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepOrange,
-                  minimumSize: Size(double.infinity, 50),
-                ),
-                child: Text("Register", style: TextStyle(color: Colors.white)),
+            child: Obx(() => _inProgress.value // Show progress indicator based on observable value
+                ? Center(child: CircularProgressIndicator())
+                : ElevatedButton(
+              onPressed: _onTapRegisterButton,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepOrange,
+                minimumSize: Size(double.infinity, 50),
               ),
-            ),
+              child: Text("Register", style: TextStyle(color: Colors.white)),
+            )),
           ),
           SizedBox(height: 20),
           Row(
@@ -190,9 +190,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             children: [
               Text("Have account?", style: TextStyle(color: Colors.black54)),
               TextButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
-                },
+                onPressed: () => Get.to(() => LoginScreen()),
                 child: Text("Sign In", style: TextStyle(color: Colors.deepOrange)),
               )
             ],
@@ -209,12 +207,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   Future<void> _registration() async {
-    setState(() {
-      _inProgress = true;
-    });
+    _inProgress.value = true;
 
     NetworkResponse response = await NetworkCaller.postRequest(
-     url:  Urls.registration,
+      url: Urls.registration,
       body: {
         'email': _emailController.text,
         'firstName': _firstNameController.text,
@@ -224,18 +220,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       },
     );
 
-    if (!mounted) return; // Check if the widget is still in the tree
-
-    setState(() {
-      _inProgress = false;
-    });
+    _inProgress.value = false;
 
     if (response.isSuccess) {
       _clearTextFields();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Registration successful")));
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+      Get.snackbar('Success', 'Registration successful', snackPosition: SnackPosition.BOTTOM);
+      Get.offAll(() => LoginScreen());
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Registration failed: ${response.errorMessage}")));
+      Get.snackbar('Error', 'Registration failed: ${response.errorMessage}', snackPosition: SnackPosition.BOTTOM);
     }
   }
 
@@ -246,7 +238,4 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     _passwordController.clear();
     _emailController.clear();
   }
-
 }
-
-

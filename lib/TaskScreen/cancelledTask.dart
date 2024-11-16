@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // Import GetX for reactive state management and snackbar
 import 'package:task_manager_app/Data/Model/TaskModel.dart';
 import 'package:task_manager_app/widget/taskCard.dart';
 
@@ -15,8 +16,8 @@ class CancelledTaskScreen extends StatefulWidget {
 }
 
 class _CancelledTaskScreenState extends State<CancelledTaskScreen> {
-  bool _getCancelledTaskListInProgress = false;
-  List<TaskModel> _cancelledTaskList = [];
+  var _getCancelledTaskListInProgress = false.obs; // Observable for loading state
+  var _cancelledTaskList = <TaskModel>[].obs; // Observable list of tasks
 
   @override
   void initState() {
@@ -26,8 +27,8 @@ class _CancelledTaskScreenState extends State<CancelledTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: !_getCancelledTaskListInProgress,
+    return Obx(() => Visibility(
+      visible: !_getCancelledTaskListInProgress.value,
       replacement: Center(child: CircularProgressIndicator()),
       child: RefreshIndicator(
         onRefresh: _getCancelledTaskList,
@@ -42,22 +43,20 @@ class _CancelledTaskScreenState extends State<CancelledTaskScreen> {
           },
         ),
       ),
-    );
+    ));
   }
 
   Future<void> _getCancelledTaskList() async {
     _cancelledTaskList.clear();
-    _getCancelledTaskListInProgress = true;
-    setState(() {});
+    _getCancelledTaskListInProgress.value = true;
 
-    final NetworkResponse response = await NetworkCaller.getRequest(url:Urls.cancelledTaskList);
+    final NetworkResponse response = await NetworkCaller.getRequest(url: Urls.cancelledTaskList);
     if (response.isSuccess) {
       final TaskListModel taskListModel = TaskListModel.fromJson(response.responseData);
-      _cancelledTaskList = taskListModel.taskList ?? [];
+      _cancelledTaskList.assignAll(taskListModel.taskList ?? []);
     } else {
-      showSnackBarMessage(context, response.errorMessage, true);
+      Get.snackbar('Error', response.errorMessage, snackPosition: SnackPosition.BOTTOM, colorText: Colors.white, backgroundColor: Colors.red);
     }
-    _getCancelledTaskListInProgress = false;
-    setState(() {});
+    _getCancelledTaskListInProgress.value = false;
   }
 }

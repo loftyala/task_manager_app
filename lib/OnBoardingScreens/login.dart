@@ -1,28 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:task_manager_app/Data/Model/loginModel.dart';
-import 'package:task_manager_app/Data/Model/network_response.dart';
-import 'package:task_manager_app/Data/Service/networkCaller.dart';
-import 'package:task_manager_app/Data/utils.dart';
-import 'package:task_manager_app/OnBoardingScreens/registration.dart';
-import 'package:task_manager_app/OnBoardingScreens/verifyEmail.dart';
-import 'package:task_manager_app/TaskScreen/main_bottom_nav_bar.dart';
-
-import 'package:task_manager_app/style/style.dart';
-import '../Controller/auth_controller.dart';
+import 'package:get/get.dart';
+import '../Controller/singIn_controller.dart';
 import '../style/background.dart';
+import '../style/style.dart';
+import 'registration.dart';
+import 'verifyEmail.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  bool _inProgress = false;
+class LoginScreen extends StatelessWidget {
+  final LoginController controller = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: boxDecoration(),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
-                    child: buildTextField(context),
+                    child: _buildForm(context),
                   ),
                 ),
               ),
@@ -59,9 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Form buildTextField(BuildContext context) {
+  Form _buildForm(BuildContext context) {
     return Form(
-      key: _formKey,
       child: SingleChildScrollView(
         child: Column(
           children: [
@@ -71,17 +55,13 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  controller: _emailController,
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return "Email is required";
-                    }
-                    return null;
-                  },
+                  controller: controller.emailController,
+                  decoration: inputDecoration(
+                    "alalofty@gmail.com",
+                    "Enter Email",
+                    Icon(Icons.email_outlined),
+                  ),
                   keyboardType: TextInputType.emailAddress,
-                  decoration: inputDecoration("alalofty@gmail.com", "Enter Email",
-                      Icon(Icons.email_outlined)),
                 ),
               ),
             ),
@@ -90,43 +70,36 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  controller: _passwordController,
-                  obscureText: true, // Make password field obscure
-                  validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return "Password is required";
-                    }
-                    if (value.length < 6) {
-                      return "Password must be more than 6 characters";
-                    }
-                    return null;
-                  },
+                  controller: controller.passwordController,
+                  obscureText: true,
+                  decoration: inputDecoration(
+                    "jsk@34#2",
+                    "Enter Password",
+                    Icon(Icons.password_outlined),
+                  ),
                   keyboardType: TextInputType.text,
-                  decoration: inputDecoration("jsk@34#2", "Enter Password", Icon(Icons.password_outlined)),
                 ),
               ),
             ),
             SizedBox(height: 20),
-            Card(
-                shadowColor: Colors.deepOrange,
-                elevation: 10,
-                color: Colors.deepOrange,
-                child: Visibility(
-                  visible: !_inProgress,
-                  replacement: Center(child: CircularProgressIndicator()),
-                  child: ElevatedButton(
-                    onPressed: _onTapLoginButton,
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepOrange, minimumSize: Size(double.infinity, 50)),
-                    child: Text("Login", style: TextStyle(color: Colors.white)),
-                  ),
-                )),
+            Obx(() {
+              return ElevatedButton(
+                onPressed: controller.isLoading.value ? null : controller.signIn,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepOrange,
+                  minimumSize: Size(double.infinity, 50),
+                ),
+                child: controller.isLoading.value
+                    ? CircularProgressIndicator(color: Colors.white)
+                    : Text("Login", style: TextStyle(color: Colors.white)),
+              );
+            }),
             SizedBox(height: 20),
-            TextButton(onPressed: (){
-              Navigator.of(context).push(MaterialPageRoute(builder: (context)=>VerifyEmailScreen()));
-            },
-                child: Text("Forgot Password?", style: TextStyle(color: Colors.black54)),
+            TextButton(
+              onPressed: () {
+                Get.to(() => VerifyEmailScreen());
+              },
+              child: Text("Forgot Password?", style: TextStyle(color: Colors.black54)),
             ),
             SizedBox(height: 20),
             Row(
@@ -134,42 +107,16 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 Text("Don't have an account?", style: TextStyle(color: Colors.black54)),
                 TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context, MaterialPageRoute(builder: (context) => RegistrationScreen()));
-                    },
-                    child: Text("Sign Up", style: TextStyle(color: Colors.deepOrange))),
+                  onPressed: () {
+                    Get.to(() => RegistrationScreen());
+                  },
+                  child: Text("Sign Up", style: TextStyle(color: Colors.deepOrange)),
+                ),
               ],
             ),
           ],
         ),
       ),
     );
-  }
-
-  void _onTapLoginButton() {
-    if (_formKey.currentState!.validate()) {
-      _signIn(); // Call signIn() only if the form is valid
-    }
-  }
-
-  Future<void> _signIn() async {
-    
-
-    if (response.isSuccess) {
-      LoginModel loginModel =LoginModel.fromJson(response.responseData);
-      await AuthController.saveAccessToken(loginModel.token!);
-      AuthController.saveUserData(loginModel.data!);
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => MainBottomNavBarScreen()),
-            (Route<dynamic> route) => false,
-      );
-    } else {
-      _showSnackBar(response.errorMessage);
-    }
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 }

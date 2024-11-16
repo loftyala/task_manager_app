@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart'; // Import GetX for navigation
 import 'package:task_manager_app/OnBoardingScreens/login.dart';
 import 'package:task_manager_app/style/background.dart';
 import '../Controller/auth_controller.dart';
@@ -21,15 +22,9 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 3), () {
       AuthController.getAccessToken();
       if (AuthController.isLoggedIn()) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MainBottomNavBarScreen()),
-        );
+        Get.off(() => const MainBottomNavBarScreen()); // Replaced with Get.off for navigation
       } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
+        Get.off(() =>  LoginScreen()); // Replaced with Get.off for navigation
       }
     });
   }
@@ -42,13 +37,11 @@ class _SplashScreenState extends State<SplashScreen> {
           ScreenBackground(),
           Center(
             child: SvgPicture.asset(
-              'assets/images/logo.svg', // Corrected path
-              width: 110, // Adjust width as needed
-              height: 110, // Adjust height as needed
-
+              'assets/images/logo.svg',
+              width: 110,
+              height: 110,
               fit: BoxFit.cover,
-            )
-
+            ),
           ),
         ],
       ),

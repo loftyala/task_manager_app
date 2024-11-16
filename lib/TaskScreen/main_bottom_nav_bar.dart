@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // Import GetX
 import 'package:task_manager_app/TaskScreen/cancelledTask.dart';
 import 'package:task_manager_app/TaskScreen/completedTask.dart';
 import 'package:task_manager_app/TaskScreen/newTask.dart';
@@ -6,15 +7,48 @@ import 'package:task_manager_app/TaskScreen/progressTask.dart';
 import 'package:task_manager_app/style/taskAppBar.dart';
 import 'package:task_manager_app/Data/Model/TaskModel.dart';
 
-class MainBottomNavBarScreen extends StatefulWidget {
+class MainBottomNavBarScreen extends StatelessWidget {
   const MainBottomNavBarScreen({super.key});
 
   @override
-  State<MainBottomNavBarScreen> createState() => _MainBottomNavBarScreenState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: TMAppBar(), // Ensure TMAppBar is a valid AppBar widget
+      body: Obx(() => TaskNavigationController.to.taskScreens[TaskNavigationController.to.selectedIndex.value]),
+      bottomNavigationBar: Obx(
+            () => NavigationBar(
+          selectedIndex: TaskNavigationController.to.selectedIndex.value,
+          onDestinationSelected: (int index) {
+            TaskNavigationController.to.changeIndex(index);
+          },
+          destinations: [
+            NavigationDestination(
+              icon: Icon(Icons.new_releases),
+              label: 'New',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.check_circle),
+              label: 'Completed',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.cancel),
+              label: 'Cancelled',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.hourglass_bottom),
+              label: 'Progress',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class _MainBottomNavBarScreenState extends State<MainBottomNavBarScreen> {
-  int selectedIndex = 0;
+class TaskNavigationController extends GetxController {
+  static TaskNavigationController get to => Get.find();
+
+  var selectedIndex = 0.obs;
 
   final List<Widget> taskScreens = [
     NewTaskScreen(
@@ -31,37 +65,7 @@ class _MainBottomNavBarScreenState extends State<MainBottomNavBarScreen> {
     ProgressTaskScreen(),
   ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: TMAppBar(), // Ensure TMAppBar is a valid AppBar widget
-      body: taskScreens[selectedIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: selectedIndex,
-        onDestinationSelected: (int index) {
-          setState(() {
-            selectedIndex = index;
-          });
-        },
-        destinations: [
-          NavigationDestination(
-            icon: Icon(Icons.new_releases),
-            label: 'New',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.check_circle),
-            label: 'Completed',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.cancel),
-            label: 'Cancelled',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.hourglass_bottom),
-            label: 'Progress',
-          ),
-        ],
-      ),
-    );
+  void changeIndex(int index) {
+    selectedIndex.value = index;
   }
 }

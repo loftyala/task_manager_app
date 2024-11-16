@@ -1,43 +1,43 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:task_manager_app/Data/Model/loginModel.dart';
+import 'package:task_manager_app/Data/Model/network_response.dart';
+import 'package:task_manager_app/Data/Service/networkCaller.dart';
+import 'package:task_manager_app/Data/utils.dart';
+import 'package:task_manager_app/TaskScreen/main_bottom_nav_bar.dart';
 
-import '../Data/Model/loginModel.dart';
-import '../Data/Model/network_response.dart';
-import '../Data/Service/networkCaller.dart';
-import '../Data/utils.dart';
 import 'auth_controller.dart';
 
-class SingInController extends GetxController {
-  bool _inProgress = false;
-  String? _errorMessage;
+class LoginController extends GetxController {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  var isLoading = false.obs;
 
-  String? get errorMessage => _errorMessage;
+  Future<void> signIn() async {
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      Get.snackbar("Error", "Email and password cannot be empty.");
+      return;
+    }
 
-  bool get inProgress => _inProgress;
+    isLoading(true);
 
-  Future<bool> signIn(String email, String password) async {
-    bool isSuccess = false;
-
-    _inProgress = true;
-    update();
-
-    final NetworkResponse response = await NetworkCaller.postRequest(
+    final response = await NetworkCaller.postRequest(
       url: Urls.login,
       body: {
-        'email': email,
-        'password': password,
+        'email': emailController.text,
+        'password': passwordController.text,
       },
     );
 
+    isLoading(false);
+
     if (response.isSuccess) {
-      LoginModel loginModel = LoginModel.fromJson(response.responseData);
+      final loginModel = LoginModel.fromJson(response.responseData);
       await AuthController.saveAccessToken(loginModel.token!);
-      AuthController.saveUserData(loginModel.data!);
-      isSuccess = true;
+      await AuthController.saveUserData(loginModel.data!);
+      Get.offAll(() => MainBottomNavBarScreen());
     } else {
-      _errorMessage = response.errorMessage;
+      Get.snackbar("Login Failed", response.errorMessage);
     }
-    _inProgress = false;
-    update();
-    return response.isSuccess;
   }
 }
